@@ -2,7 +2,7 @@ package net.punter.accountapp.integration.test;
 
 
 import io.restassured.RestAssured;
-import net.punter.accountapp.controllers.AccountController;
+import net.punter.accountapp.controllers.AccountsApiController;
 import net.punter.accountapp.domains.Account;
 import net.punter.accountapp.domains.Balance;
 import org.junit.Before;
@@ -23,11 +23,11 @@ import static io.restassured.RestAssured.given;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("integration-tests")
+@ActiveProfiles("integration-test")
 public class RestIntegrationTest {
 
     @Autowired
-    AccountController controller;
+    AccountsApiController controller;
 
     @LocalServerPort
     int randomServerPort;

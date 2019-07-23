@@ -4,6 +4,7 @@ package net.punter.accountapp.controllers;
 import lombok.extern.slf4j.Slf4j;
 import net.punter.accountapp.domains.Account;
 import net.punter.accountapp.domains.AccountTransaction;
+import net.punter.accountapp.repositories.AccountTransactionRepository;
 import net.punter.accountapp.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -15,15 +16,16 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/v1/accounts")
 @Slf4j
-public class AccountController {
+public class AccountsApiController {
 
     @Autowired
     private AccountService accountService;
-
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Collection<Account>> getAllAccounts() {
@@ -61,7 +63,7 @@ public class AccountController {
     }
 
 
-    @PostMapping(value = "/{id}/transaction", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/{id}/transactions", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<String> transact(@PathVariable("id") long accountId,
                                            @RequestBody AccountTransaction accountTransaction) {
         String transactionReference = "";
@@ -79,5 +81,19 @@ public class AccountController {
             transactionReference = accountService.withDraw(account, accountTransaction);
         }
         return new ResponseEntity<String>(transactionReference, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}/transactions", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<List<AccountTransaction>> getTransactions(@PathVariable("id") long accountId) {
+        List<AccountTransaction> accountTransactions = null;
+        try {
+            Account account = accountService.get(Long.valueOf(accountId));
+            accountTransactions = new ArrayList<>(account.getTransactions());
+
+        } catch (Exception exception) {
+            log.warn("Requested resource does not exist", exception);
+        }
+
+        return new ResponseEntity<List<AccountTransaction>>(accountTransactions, HttpStatus.OK);
     }
 }

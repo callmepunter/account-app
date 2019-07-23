@@ -42,3 +42,4 @@ target/*
 generated/
 
 .fuse*
+pid.file
