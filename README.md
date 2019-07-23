@@ -10,17 +10,8 @@ maintain various currencies linked to single account.
 * Transactions can be performed on account. Each transaction is recorded. 
 
 
+To start the application use 
+./launcher.sh
 
-
-
-
-
-
-
-
-
-
- 
-
-
-
+To stop the application use 
+./shutdown.sh

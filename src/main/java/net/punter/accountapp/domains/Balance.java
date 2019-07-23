@@ -2,13 +2,15 @@ package net.punter.accountapp.domains;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Currency;
-import java.util.Objects;
 
 @Entity
 @Table(name = "tb_account_balance")

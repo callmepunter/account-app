@@ -1,7 +1,10 @@
 package net.punter.accountapp.domains;
 
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.*;

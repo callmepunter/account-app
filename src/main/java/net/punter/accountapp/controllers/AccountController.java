@@ -4,7 +4,6 @@ package net.punter.accountapp.controllers;
 import lombok.extern.slf4j.Slf4j;
 import net.punter.accountapp.domains.Account;
 import net.punter.accountapp.domains.AccountTransaction;
-import net.punter.accountapp.domains.Balance;
 import net.punter.accountapp.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -14,7 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @RestController
 @RequestMapping(value = "/api/v1/accounts")
@@ -38,11 +38,14 @@ public class AccountController {
     @GetMapping(value = "/{id}",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Account> getAccount(@PathVariable("id") long accountId) {
-        Account Account = accountService.get(Long.valueOf(accountId));
-        if (Account == null) {
-            return new ResponseEntity<Account>(HttpStatus.NOT_FOUND);
+        Account account = null;
+        try {
+            account = accountService.get(Long.valueOf(accountId));
+            return new ResponseEntity<Account>(account, HttpStatus.OK);
+        } catch (Exception exception) {
+            log.warn("Requested resource does not exist", exception);
         }
-        return new ResponseEntity<Account>(Account, HttpStatus.OK);
+        return new ResponseEntity<Account>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping(value = "", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -50,7 +53,6 @@ public class AccountController {
         Account persisted = accountService.createNew(account);
         return new ResponseEntity<Account>(persisted, HttpStatus.CREATED);
     }
-
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Void> deleteAccount(@PathVariable("id") long accountId) {

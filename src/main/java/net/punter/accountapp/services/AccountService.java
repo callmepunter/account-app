@@ -2,10 +2,8 @@ package net.punter.accountapp.services;
 
 import net.punter.accountapp.domains.Account;
 import net.punter.accountapp.domains.AccountTransaction;
-import net.punter.accountapp.domains.Balance;
 
 import java.util.Collection;
-import java.util.Set;
 
 public interface AccountService {
 

@@ -4,41 +4,27 @@ package net.punter.accountapp.integration.test;
 import io.restassured.RestAssured;
 import net.punter.accountapp.controllers.AccountController;
 import net.punter.accountapp.domains.Account;
-import net.punter.accountapp.domains.AccountTransaction;
 import net.punter.accountapp.domains.Balance;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
-import java.net.URI;
 import java.util.Currency;
-import java.util.List;
-import java.util.Set;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("dev")
-public class IntegrationTest {
+@ActiveProfiles("integration-tests")
+public class RestIntegrationTest {
 
     @Autowired
     AccountController controller;
@@ -86,7 +72,7 @@ public class IntegrationTest {
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get("account-app/api/v1/accounts/1").prettyPeek()
+                .get("account-app/api/v1/accounts/100").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value());
     }

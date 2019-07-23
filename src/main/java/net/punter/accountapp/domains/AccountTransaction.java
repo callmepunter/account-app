@@ -3,20 +3,16 @@ package net.punter.accountapp.domains;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Immutable;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.security.Timestamp;
-import java.time.Instant;
 import java.util.Currency;
 import java.util.Date;
-import java.util.Objects;
+
 @Immutable
 @Entity
 @Table(name = "tb_account_transaction")
@@ -47,18 +43,18 @@ public class AccountTransaction {
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy/MM/dd")
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy/MM/dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy/MM/dd")
     private Date requestedOn;
 
     public enum TYPE {
-        DEBIT, CREDIT, INVALID;
+        DEBIT, CREDIT, INVALID
     }
 
     @Column
     String remarks;
 
     @PrePersist
-    void createdOn(){
+    private void createdOn() {
         this.requestedOn = new Date();
     }
 
