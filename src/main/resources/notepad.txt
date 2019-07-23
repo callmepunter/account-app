@@ -1,0 +1,17 @@
+# HSQLDB config start
+#----------------------------------------------------------------
+
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+
+spring.datasource.schema=classpath*:db/hsqldb/initDB.sql
+spring.datasource.data=classpath*:db/hsqldb/populateDB.sql
+
+spring.datasource.url=jdbc:hsqldb:mem:accountapp
+spring.datasource.username=sa
+spring.datasource.password=
+spring.jpa.database=HSQL
+spring.jpa.database-platform=org.hibernate.dialect.HSQLDialect
+spring.jpa.hibernate.ddl-auto=none
+#----------------------------------------------------------------
+# HSQLDB config end
