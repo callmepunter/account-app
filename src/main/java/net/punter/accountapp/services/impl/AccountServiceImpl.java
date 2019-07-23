@@ -6,6 +6,7 @@ import net.punter.accountapp.domains.Account;
 import net.punter.accountapp.domains.AccountTransaction;
 import net.punter.accountapp.domains.Balance;
 import net.punter.accountapp.repositories.AccountRepository;
+import net.punter.accountapp.repositories.AccountTransactionRepository;
 import net.punter.accountapp.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -24,6 +25,8 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     AccountRepository accountRepository;
 
+    @Autowired
+    AccountTransactionRepository accountTransactionRepository;
 
     @Override
     public Account createNew(Account account) {
@@ -57,40 +60,39 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public Set<Balance> deposite(Long accountNumber, AccountTransaction accountTransaction) {
-        Optional<Balance> availableBalanceHolder = Optional.empty();
+    public String deposit(Long accountNumber, AccountTransaction accountTransaction) {
         Optional<Account> accountHolder = accountRepository.findById(accountNumber);
         if (accountHolder.isPresent()) {
             Account account = accountHolder.get();
-            Set<Balance> availableBalances = accountHolder.get().getBalances();
-            availableBalanceHolder = availableBalances.stream().filter(balance ->
-                 balance.getCurrency().equals(accountTransaction.getCurrency())
-            ).findFirst();
-            Balance availableBalance = availableBalanceHolder.get();
+            Balance availableBalance = account.findBalance(accountTransaction.getCurrency());
             BigDecimal availableAmount = availableBalance.getAmount();
             availableBalance.setAmount(availableAmount.add(accountTransaction.getAmount()));
+            availableBalance.setAccount(account);
             accountRepository.saveAndFlush(account);
-            return account.getBalances();
+
+            accountTransaction.setAccount(account);
+            return accountTransactionRepository.saveAndFlush(accountTransaction).getId();
         }
         return null;
     }
 
     @Override
     @Transactional
-    public Set<Balance> withDraw(Long accountNumber, AccountTransaction accountTransaction) {
-        Optional<Balance> availableBalanceHolder = Optional.empty();
+    public String withDraw(Long accountNumber, AccountTransaction accountTransaction) {
         Optional<Account> accountHolder = accountRepository.findById(accountNumber);
         if (accountHolder.isPresent()) {
             Account account = accountHolder.get();
-            Set<Balance> availableBalances = accountHolder.get().getBalances();
-            availableBalanceHolder = availableBalances.stream().filter(balance ->
-                    balance.getCurrency().equals(accountTransaction.getCurrency())
-            ).findFirst();
-            Balance availableBalance = availableBalanceHolder.get();
-            BigDecimal availableAmount = availableBalance.getAmount();
-            availableBalance.setAmount(availableAmount.add(accountTransaction.getAmount()));
-            accountRepository.saveAndFlush(account);
-            return account.getBalances();
+            Balance availableBalance = account.findBalance(accountTransaction.getCurrency());
+            if (availableBalance != null && availableBalance.isGreaterThan(accountTransaction.getAmount())) {
+                BigDecimal availableAmount = availableBalance.getAmount();
+                availableBalance.setAmount(availableAmount.min(accountTransaction.getAmount()));
+                availableBalance.setAccount(account);
+                accountRepository.saveAndFlush(account);
+
+                accountTransaction.setAccount(account);
+                return accountTransactionRepository.saveAndFlush(accountTransaction).getId();
+            }
+
         }
         return null;
     }

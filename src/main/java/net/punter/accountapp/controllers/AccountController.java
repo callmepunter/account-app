@@ -60,22 +60,22 @@ public class AccountController {
 
 
     @PostMapping(value = "/{id}/transaction", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<Set<Balance>> transact(@PathVariable("id") long accountId,
-                                                 @RequestBody AccountTransaction accountTransaction) {
-        Set<Balance> availableBalances  = new HashSet<>();
+    public ResponseEntity<String> transact(@PathVariable("id") long accountId,
+                                           @RequestBody AccountTransaction accountTransaction) {
+        String transactionReference = "";
         Long account = Long.valueOf(accountId);
         HttpHeaders headers = new HttpHeaders();
         if (account.equals(Long.valueOf(0l)) || AccountTransaction.TYPE.INVALID.equals(accountTransaction.getType())) {
             headers.add("request", accountTransaction.toString());
-            return new ResponseEntity<Set<Balance>>(headers, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<String>(headers, HttpStatus.BAD_REQUEST);
         }
         if (AccountTransaction.TYPE.CREDIT == accountTransaction.getType()) {
-            availableBalances.addAll(accountService.deposite(account, accountTransaction));
+            transactionReference = accountService.deposit(account, accountTransaction);
         }
 
         if (AccountTransaction.TYPE.DEBIT == accountTransaction.getType()) {
-            availableBalances.addAll(accountService.deposite(account, accountTransaction));
+            transactionReference = accountService.withDraw(account, accountTransaction);
         }
-        return new ResponseEntity<Set<Balance>>(new HashSet<>(availableBalances), HttpStatus.OK);
+        return new ResponseEntity<String>(transactionReference, HttpStatus.OK);
     }
 }

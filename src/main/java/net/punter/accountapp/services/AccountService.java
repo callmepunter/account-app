@@ -17,7 +17,7 @@ public interface AccountService {
 
     void delete(Long id);
 
-    Set<Balance> deposite(Long id, AccountTransaction accountTransaction);
+    String deposit(Long accountId, AccountTransaction accountTransaction);
 
-    Set<Balance> withDraw(Long id, AccountTransaction accountTransaction);
+    String withDraw(Long accountId, AccountTransaction accountTransaction);
 }
