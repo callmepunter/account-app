@@ -4,6 +4,7 @@ package net.punter.accountapp.domains;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -15,11 +16,9 @@ import java.util.Currency;
 @Table(name = "tb_account_balance")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Balance {
 
-    private Balance(){
-
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

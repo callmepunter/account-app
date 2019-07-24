@@ -16,25 +16,25 @@
 
 package net.punter.accountapp.controllers;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/**
- * @author Vitaliy Fedoriv
- *
- */
 
 @RestController
 @RequestMapping("/")
 public class RootController {
 
-	@RequestMapping(value = "/")
-	public void redirectToSwagger(HttpServletResponse response) throws IOException {
-		response.sendRedirect("/account-app/swagger-ui.html");
-	}
+    @Value("${spring.application.name}")
+    private String appName;
+
+    @RequestMapping(value = "/")
+    public void redirectToSwagger(HttpServletResponse response) throws IOException {
+        response.sendRedirect("swagger-ui.html");
+    }
 
 }
 
