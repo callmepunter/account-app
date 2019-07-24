@@ -1,6 +1,7 @@
 # Getting Started
 [![Build Status](https://travis-ci.org/callmepunter/account-app.svg?branch=master)](https://travis-ci.org/callmepunter/account-app)
 
+[![codecov](https://codecov.io/gh/callmepunter/account-app/branch/master/graph/badge.svg)](https://codecov.io/gh/callmepunter/account-app)
 
 A Sample application created with Spring Boot.
 This is a simple scaffold running port 8989 using in memory H2 database. 
