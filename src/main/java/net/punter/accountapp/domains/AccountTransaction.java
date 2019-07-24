@@ -3,7 +3,8 @@ package net.punter.accountapp.domains;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Immutable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,7 +17,8 @@ import java.util.Date;
 @Immutable
 @Entity
 @Table(name = "tb_account_transaction")
-@Data
+@Getter
+@Setter
 public class AccountTransaction {
 
 
@@ -62,7 +64,6 @@ public class AccountTransaction {
     public String toString() {
         return "AccountTransaction{" +
                 "id='" + id + '\'' +
-                ", account=" + account.getId() +
                 ", amount=" + amount +
                 ", currency=" + currency +
                 ", type=" + type +

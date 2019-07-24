@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -15,7 +14,6 @@ import java.util.Currency;
 @Entity
 @Table(name = "tb_account_balance")
 @Getter
-@ToString
 @Setter
 public class Balance {
 
@@ -53,12 +51,19 @@ public class Balance {
     @JoinColumn(name = "tb_account_id")
     private Account account;
 
-    public boolean isGreaterThan(BigDecimal amount) {
-        if (this.amount.compareTo(amount) > 0) {
+    public boolean isGreaterThanOrEquals(@NotNull BigDecimal amount) {
+        if (this.amount.compareTo(amount) >= 0) {
             return true;
         }
         return false;
     }
 
-
+    @Override
+    public String toString() {
+        return "Balance{" +
+                "id=" + id +
+                ", amount=" + amount +
+                ", currency=" + currency +
+                '}';
+    }
 }

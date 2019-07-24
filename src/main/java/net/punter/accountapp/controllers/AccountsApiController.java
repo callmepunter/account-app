@@ -4,7 +4,6 @@ package net.punter.accountapp.controllers;
 import lombok.extern.slf4j.Slf4j;
 import net.punter.accountapp.domains.Account;
 import net.punter.accountapp.domains.AccountTransaction;
-import net.punter.accountapp.repositories.AccountTransactionRepository;
 import net.punter.accountapp.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @RestController

@@ -23,7 +23,7 @@ import static io.restassured.RestAssured.given;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("integration-test")
+@ActiveProfiles("embedded")
 public class RestIntegrationTest {
 
     @Autowired
@@ -42,7 +42,7 @@ public class RestIntegrationTest {
 
 
     @Test
-    public void ping() {
+    public void contextLoaded() {
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

@@ -1,0 +1,30 @@
+version: '3'
+
+networks:
+  compass:
+    driver: bridge
+
+services:
+  taskdetail:
+    image: punter/anzapp
+    container_name: anzapp
+    hostname: anzapp
+    ports:
+     - 8008:8080
+     - 8455:8453
+    volumes:
+     - anzapp:/config
+    environment:
+     - JAVA_OPTIONS=-Dflyway.clean=true
+     - SPRING_PROFILES_ACTIVE=local,native
+    logging:
+           driver: json-file
+           options:
+             max-size: "50m"
+             max-file:  "2"
+    networks:
+      compass:
+        aliases:
+          - anzapp
+volumes:
+  anzapp:

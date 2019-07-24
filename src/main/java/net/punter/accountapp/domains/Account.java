@@ -2,9 +2,9 @@ package net.punter.accountapp.domains;
 
 
 import lombok.AccessLevel;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.*;
@@ -12,8 +12,9 @@ import java.util.*;
 
 @Entity
 @Table(name = "tb_account")
-@Data
-@ToString
+@Getter
+@Setter
+@NoArgsConstructor
 public class Account {
 
     @Id
@@ -31,7 +32,6 @@ public class Account {
     private Collection<AccountTransaction> transactions;
 
     @Column(updatable = false)
-    @Setter(AccessLevel.NONE)
     private ACCOUNT_TYPE type = ACCOUNT_TYPE.SAVINGS;
 
     /**
@@ -41,11 +41,6 @@ public class Account {
 
         this.type = type;
     }
-
-    private Account() {
-
-    }
-
 
     public enum ACCOUNT_TYPE {
         SAVINGS, CURRENT;
@@ -68,6 +63,7 @@ public class Account {
     }
 
     public void addBalance(Balance balance) {
+        balance.setAccount(this);
         getBalances().add(balance);
     }
 
@@ -91,5 +87,14 @@ public class Account {
     @Override
     public int hashCode() {
         return Objects.hash(getId(), getName(), getType());
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", type=" + type +
+                '}';
     }
 }

@@ -76,7 +76,7 @@ public class AccountServiceImpl implements AccountService {
             accountTransaction.setAccount(account);
             return accountTransactionRepository.saveAndFlush(accountTransaction).getId();
         }
-        return null;
+        return "INVALID'";
     }
 
     @Override
@@ -86,7 +86,7 @@ public class AccountServiceImpl implements AccountService {
         if (accountHolder.isPresent()) {
             Account account = accountHolder.get();
             Balance availableBalance = account.findBalance(accountTransaction.getCurrency());
-            if (availableBalance != null && availableBalance.isGreaterThan(accountTransaction.getAmount())) {
+            if (availableBalance != null && availableBalance.isGreaterThanOrEquals(accountTransaction.getAmount())) {
                 BigDecimal availableAmount = availableBalance.getAmount();
                 availableBalance.setAmount(availableAmount.min(accountTransaction.getAmount()));
                 availableBalance.setAccount(account);
@@ -95,8 +95,7 @@ public class AccountServiceImpl implements AccountService {
                 accountTransaction.setAccount(account);
                 return accountTransactionRepository.saveAndFlush(accountTransaction).getId();
             }
-
         }
-        return null;
+        return "INVALID";
     }
 }
