@@ -28,9 +28,6 @@ import java.io.IOException;
 @RequestMapping("/")
 public class RootController {
 
-    @Value("${spring.application.name}")
-    private String appName;
-
     @RequestMapping(value = "/")
     public void redirectToSwagger(HttpServletResponse response) throws IOException {
         response.sendRedirect("swagger-ui.html");

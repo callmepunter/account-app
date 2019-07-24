@@ -3,4 +3,7 @@ coverage:
   round: nearest
   range: "40...70"
   ignore:
-    - "account-app/src/main/java/net/punter/accountapp/SwaggerConfig.java"
+    - "**/SwaggerConfig.java"
+    - "**/Application.java"
+    - "**/Ping.java"
+    - "**/RootController.java"

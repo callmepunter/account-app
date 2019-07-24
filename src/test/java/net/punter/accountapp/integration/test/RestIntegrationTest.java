@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,8 @@ public class RestIntegrationTest {
     @LocalServerPort
     int randomServerPort;
 
+    @Value("${spring.application.name}")
+    private String appRoot;
 
 
     @Before
@@ -46,7 +49,7 @@ public class RestIntegrationTest {
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get("account-app/ping").prettyPeek()
+                .get(appRoot + "/ping").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.OK.value());
 
@@ -56,12 +59,12 @@ public class RestIntegrationTest {
     public void createNewAccount() {
         Account account = new Account(Account.ACCOUNT_TYPE.SAVINGS);
         account.setName("integration-test");
-        account.addBalance(new Balance(BigDecimal.valueOf(1000L),Currency.getInstance("AUD")));
+        account.addBalance(new Balance(BigDecimal.valueOf(1000L), Currency.getInstance("AUD")));
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(account)
-                .post("account-app/api/v1/accounts").prettyPeek()
+                .post(appRoot + "api/v1/accounts").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
@@ -72,7 +75,7 @@ public class RestIntegrationTest {
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get("account-app/api/v1/accounts/100").prettyPeek()
+                .get(appRoot + "api/v1/accounts/100").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value());
     }
@@ -81,19 +84,19 @@ public class RestIntegrationTest {
     public void getAccount_IfPresent() {
         Account first = new Account(Account.ACCOUNT_TYPE.SAVINGS);
         first.setName("first");
-        first.addBalance(new Balance(BigDecimal.valueOf(1000L),Currency.getInstance("AUD")));
+        first.addBalance(new Balance(BigDecimal.valueOf(1000L), Currency.getInstance("AUD")));
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(first)
-                .post("account-app/api/v1/accounts").prettyPeek()
+                .post(appRoot + "/api/v1/accounts").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get("account-app/api/v1/accounts/1").prettyPeek()
+                .get(appRoot + "/api/v1/accounts/1").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.OK.value());
     }
@@ -102,19 +105,19 @@ public class RestIntegrationTest {
     public void performTransaction_OnAccount() {
         Account first = new Account(Account.ACCOUNT_TYPE.SAVINGS);
         first.setName("first");
-        first.addBalance(new Balance(BigDecimal.valueOf(1000L),Currency.getInstance("AUD")));
+        first.addBalance(new Balance(BigDecimal.valueOf(1000L), Currency.getInstance("AUD")));
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(first)
-                .post("account-app/api/v1/accounts").prettyPeek()
+                .post(appRoot + "/api/v1/accounts").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get("account-app/api/v1/accounts/1").prettyPeek()
+                .get(appRoot + "/api/v1/accounts/1").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.OK.value());
     }
