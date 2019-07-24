@@ -1,5 +1,8 @@
 # Getting Started
 
+https://travis-ci.org/callmepunter/account-app.svg?branch=master
+
+
 A Sample application created with Spring Boot.
 This is a simple scaffold running port 8989 using in memory H2 database. 
 
