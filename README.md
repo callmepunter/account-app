@@ -28,7 +28,9 @@ If any problems encountered during launch related to locking of H2 DB. Use the
 ./locks.sh to remove the locks and launch again
 
 
-docker image is available at callmepunter/accounting
+docker image is available at callmepunter/accounting:v100-snapshot
 
-docker run -p 8085:8085 -p 8086:8086 --name accouting callmepunter/accounting
+docker pull callmepunter/accounting:v100-snapshot
+
+docker run -p 8085:8085 -p 8086:8086 --name accouting callmepunter/accounting:v100-snapshot
 

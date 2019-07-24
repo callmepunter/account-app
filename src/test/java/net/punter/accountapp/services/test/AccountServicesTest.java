@@ -8,21 +8,24 @@ import net.punter.accountapp.repositories.AccountRepository;
 import net.punter.accountapp.repositories.AccountTransactionRepository;
 import net.punter.accountapp.services.impl.AccountServiceImpl;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Currency;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Supplier;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.Mockito.when;
 
 /**
@@ -156,6 +159,15 @@ public class AccountServicesTest {
         Mockito.verify(accountTransactionRepository).saveAndFlush(accountTransaction);
         Assert.assertEquals(reference, transactionReference);
 
+    }
+
+    @Test
+    public void saveAccountTest() {
+        Account toBeSaved = new Account(Account.ACCOUNT_TYPE.SAVINGS);
+        toBeSaved.setName("test-case");
+        when(accountRepository.saveAndFlush(any(Account.class))).then(returnsFirstArg());
+        Account saved = accountService.createAccount(toBeSaved);
+        assertThat(saved.getName(), equalTo(toBeSaved.getName()));
     }
 
 }

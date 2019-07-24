@@ -34,7 +34,7 @@ public class RestIntegrationTest {
     int randomServerPort;
 
     @Value("${spring.application.name}")
-    private String appRoot;
+    private String applicationRootName;
 
 
     @Before
@@ -49,7 +49,7 @@ public class RestIntegrationTest {
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get(appRoot + "/ping").prettyPeek()
+                .get(applicationRootName + "/ping").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.OK.value());
 
@@ -64,7 +64,7 @@ public class RestIntegrationTest {
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(account)
-                .post(appRoot + "api/v1/accounts").prettyPeek()
+                .post(applicationRootName + "/api/v1/accounts").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
@@ -75,7 +75,7 @@ public class RestIntegrationTest {
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get(appRoot + "api/v1/accounts/100").prettyPeek()
+                .get(applicationRootName + "/api/v1/accounts/100").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value());
     }
@@ -89,14 +89,14 @@ public class RestIntegrationTest {
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(first)
-                .post(appRoot + "/api/v1/accounts").prettyPeek()
+                .post(applicationRootName + "/api/v1/accounts").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get(appRoot + "/api/v1/accounts/1").prettyPeek()
+                .get(applicationRootName + "/api/v1/accounts/1").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.OK.value());
     }
@@ -110,14 +110,35 @@ public class RestIntegrationTest {
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(first)
-                .post(appRoot + "/api/v1/accounts").prettyPeek()
+                .post(applicationRootName + "/api/v1/accounts").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get(appRoot + "/api/v1/accounts/1").prettyPeek()
+                .get(applicationRootName + "/api/v1/accounts/1").prettyPeek()
+                .then()
+                .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    public void getAllTransactionForAccountId() {
+        Account first = new Account(Account.ACCOUNT_TYPE.SAVINGS);
+        first.setName("first");
+        first.addBalance(new Balance(BigDecimal.valueOf(1000L), Currency.getInstance("AUD")));
+        given()
+                .when()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(first)
+                .post(applicationRootName + "/api/v1/accounts").prettyPeek()
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+
+        given()
+                .when()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .get(applicationRootName + "/api/v1/accounts/1/transactions").prettyPeek()
                 .then()
                 .statusCode(HttpStatus.OK.value());
     }

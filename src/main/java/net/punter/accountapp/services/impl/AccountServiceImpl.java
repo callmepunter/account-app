@@ -1,6 +1,7 @@
 package net.punter.accountapp.services.impl;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.punter.accountapp.domains.Account;
 import net.punter.accountapp.domains.AccountTransaction;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
     @Autowired
@@ -32,7 +34,7 @@ public class AccountServiceImpl implements AccountService {
     AccountTransactionRepository accountTransactionRepository;
 
     @Override
-    public Account createNew(Account account) {
+    public Account createAccount(Account account) {
         return accountRepository.saveAndFlush(account);
     }
 
@@ -45,7 +47,7 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public Account get(Long id) {
+    public Account getAccount(Long id) {
         Optional<Account> accountHolder = Optional.empty();
         try {
             accountHolder = accountRepository.findById(id);
@@ -56,7 +58,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void delete(Long accountNumber) {
+    public void deleteAccount(Long accountNumber) {
+        accountRepository.deleteById(accountNumber);
 
     }
 
@@ -97,5 +100,11 @@ public class AccountServiceImpl implements AccountService {
             }
         }
         return "INVALID";
+    }
+
+    @Override
+    public List<AccountTransaction> getAllTransactions(Long accountId) {
+
+        return Collections.EMPTY_LIST;
     }
 }

@@ -1,6 +1,7 @@
 package net.punter.accountapp.controllers;
 
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.punter.accountapp.domains.Account;
 import net.punter.accountapp.domains.AccountTransaction;
@@ -15,12 +16,16 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1/accounts")
+@RequestMapping(value = AccountsApiController.PATH)
 @Slf4j
+@AllArgsConstructor
 public class AccountsApiController {
+
+    public static final String PATH = "/api/v1/accounts";
 
     @Autowired
     private AccountService accountService;
@@ -40,7 +45,7 @@ public class AccountsApiController {
     public ResponseEntity<Account> getAccount(@PathVariable("id") long accountId) {
         Account account = null;
         try {
-            account = accountService.get(Long.valueOf(accountId));
+            account = accountService.getAccount(Long.valueOf(accountId));
             return new ResponseEntity<Account>(account, HttpStatus.OK);
         } catch (Exception exception) {
             log.warn("Requested resource does not exist", exception);
@@ -50,13 +55,13 @@ public class AccountsApiController {
 
     @PostMapping(value = "", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Account> createNew(@RequestBody @Valid Account account) {
-        Account persisted = accountService.createNew(account);
+        Account persisted = accountService.createAccount(account);
         return new ResponseEntity<Account>(persisted, HttpStatus.CREATED);
     }
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Void> deleteAccount(@PathVariable("id") long accountId) {
-        accountService.delete(Long.valueOf(accountId));
+        accountService.deleteAccount(Long.valueOf(accountId));
         return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
 
@@ -65,7 +70,7 @@ public class AccountsApiController {
     public ResponseEntity<String> transact(@PathVariable("id") long accountId,
                                            @RequestBody AccountTransaction accountTransaction) {
         String transactionReference = "";
-        Long account = Long.valueOf(accountId);
+        Long account= Long.valueOf(accountId);
         HttpHeaders headers = new HttpHeaders();
         if (account.equals(Long.valueOf(0l)) || AccountTransaction.TYPE.INVALID.equals(accountTransaction.getType())) {
             headers.add("request", accountTransaction.toString());
@@ -78,15 +83,14 @@ public class AccountsApiController {
         if (AccountTransaction.TYPE.DEBIT == accountTransaction.getType()) {
             transactionReference = accountService.withDraw(account, accountTransaction);
         }
-        return new ResponseEntity<String>(transactionReference, HttpStatus.OK);
+        return new ResponseEntity<String>(transactionReference, HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{id}/transactions", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<AccountTransaction>> getTransactions(@PathVariable("id") long accountId) {
         List<AccountTransaction> accountTransactions = null;
         try {
-            Account account = accountService.get(Long.valueOf(accountId));
-            accountTransactions = new ArrayList<>(account.getTransactions());
+            accountTransactions = Collections.unmodifiableList(accountService.getAllTransactions(accountId));
 
         } catch (Exception exception) {
             log.warn("Requested resource does not exist", exception);
