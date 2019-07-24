@@ -16,7 +16,7 @@ maintain various currencies linked to single account.
 To start the application use 
 ./launcher.sh
 swagger is available at the application root to play
-http://localhost:8989/accounting
+http://localhost:8085/accounting
 
 h2 console can be accessed at 
 http://localhost:8085/accounting/h2-console
@@ -26,4 +26,9 @@ To stop the application use
 
 If any problems encountered during launch related to locking of H2 DB. Use the 
 ./locks.sh to remove the locks and launch again
+
+
+docker image is available at callmepunter/accounting
+
+docker run -p 8085:8085 -p 8086:8086 --name accouting callmepunter/accounting
 
