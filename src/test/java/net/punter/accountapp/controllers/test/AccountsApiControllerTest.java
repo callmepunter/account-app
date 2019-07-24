@@ -131,7 +131,7 @@ public class AccountsApiControllerTest {
     }
 
     @Test
-    public void testGetTransactions() throws Exception {
+    public void testGetTransactionsForAccountId() throws Exception {
         String uuid = UUID.randomUUID().toString();
         AccountTransaction accountTransaction = new AccountTransaction();
         accountTransaction.setId(uuid);
@@ -139,10 +139,12 @@ public class AccountsApiControllerTest {
         accountTransaction.setCurrency(Currency.getInstance("EUR"));
         accountTransaction.setType(AccountTransaction.TYPE.CREDIT);
 
-        when(accountService.getAllTransactions(anyLong())).thenReturn(Arrays.asList(accountTransaction));
+        when(accountService.getAllTransactions(any(Long.class))).thenReturn(Arrays.asList(accountTransaction));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String expected = objectMapper.writeValueAsString(Arrays.asList(accountTransaction));
+        MvcResult result = mockMvc.perform(get(AccountsApiController.PATH + "/1/transactions").contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).andReturn();
+
         String responseBody = mockMvc.perform(get(AccountsApiController.PATH + "/1/transactions").contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 

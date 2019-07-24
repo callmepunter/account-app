@@ -66,36 +66,40 @@ public class AccountsApiController {
     }
 
 
-    @PostMapping(value = "/{id}/transactions", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/{id}/transactions",
+            produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> transact(@PathVariable("id") long accountId,
                                            @RequestBody AccountTransaction accountTransaction) {
-        String transactionReference = "";
-        Long account= Long.valueOf(accountId);
+        String transactionId = "";
+        Long accountNumber = accountId;
         HttpHeaders headers = new HttpHeaders();
-        if (account.equals(Long.valueOf(0l)) || AccountTransaction.TYPE.INVALID.equals(accountTransaction.getType())) {
+        if (accountNumber.equals(0L) || AccountTransaction.TYPE.INVALID.equals(accountTransaction.getType())) {
             headers.add("request", accountTransaction.toString());
             return new ResponseEntity<String>(headers, HttpStatus.BAD_REQUEST);
         }
         if (AccountTransaction.TYPE.CREDIT == accountTransaction.getType()) {
-            transactionReference = accountService.deposit(account, accountTransaction);
+            transactionId = accountService.deposit(accountNumber, accountTransaction);
         }
 
         if (AccountTransaction.TYPE.DEBIT == accountTransaction.getType()) {
-            transactionReference = accountService.withDraw(account, accountTransaction);
+            transactionId = accountService.withDraw(accountNumber, accountTransaction);
+
         }
-        return new ResponseEntity<String>(transactionReference, HttpStatus.CREATED);
+        if ("INVALID".equals(transactionId)) {
+            return new ResponseEntity<String>(headers, HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<String>(transactionId, HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{id}/transactions", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<AccountTransaction>> getTransactions(@PathVariable("id") long accountId) {
-        List<AccountTransaction> accountTransactions = null;
         try {
-            accountTransactions = Collections.unmodifiableList(accountService.getAllTransactions(accountId));
+            List<AccountTransaction> allTransactions = accountService.getAllTransactions(accountId);
+            return new ResponseEntity<List<AccountTransaction>>(allTransactions, HttpStatus.OK);
 
         } catch (Exception exception) {
             log.warn("Requested resource does not exist", exception);
         }
-
-        return new ResponseEntity<List<AccountTransaction>>(accountTransactions, HttpStatus.OK);
+        return new ResponseEntity<List<AccountTransaction>>(Collections.EMPTY_LIST, HttpStatus.NOT_FOUND);
     }
 }

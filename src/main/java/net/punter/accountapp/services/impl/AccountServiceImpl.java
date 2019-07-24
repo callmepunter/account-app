@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -104,7 +101,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<AccountTransaction> getAllTransactions(Long accountId) {
-
+        Optional<Account> accountHolder = accountRepository.findById(accountId);
+        if (accountHolder.isPresent()) {
+            Account account = accountHolder.get();
+            return new ArrayList<>(account.getTransactions());
+        }
         return Collections.EMPTY_LIST;
     }
 }
