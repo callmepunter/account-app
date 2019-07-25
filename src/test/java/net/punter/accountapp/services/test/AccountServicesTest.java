@@ -16,17 +16,15 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.util.Currency;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNotNull;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Went for mockito because I am bit by dependency-woodoo or spring boot
@@ -52,6 +50,29 @@ public class AccountServicesTest {
     public void contextLoadTest() throws Exception {
 
     }
+
+    @Test
+    public void testDeleteAccount() {
+        doNothing().when(accountRepository).deleteById(any(Long.class));
+        accountService.deleteAccount(1L);
+    }
+
+    @Test
+    public void testGetAll() {
+        Account account = new Account(Account.ACCOUNT_TYPE.SAVINGS);
+        account.setName("test-case");
+        when(accountRepository.findAll()).thenReturn(Arrays.asList(account));
+        Collection<Account> allAccounts = accountService.getAllAccounts();
+        assertThat(allAccounts.size(), is(eq(1)));
+    }
+
+    @Test
+    public void getAllTransactions(){
+        when(accountRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+        List<AccountTransaction> transactions = accountService.getAllTransactions(999L);
+        assertThat(transactions.size(), is(0));
+    }
+
 
     /**
      * Saving account has 0 balance

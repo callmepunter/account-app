@@ -4,6 +4,3 @@ coverage:
   range: "40...70"
   ignore:
     - "**/SwaggerConfig.java"
-    - "**/Application.java"
-    - "**/Ping.java"
-    - "**/RootController.java"
