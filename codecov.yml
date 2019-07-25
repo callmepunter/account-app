@@ -4,3 +4,5 @@ coverage:
   range: "40...70"
   ignore:
     - "**/net/punter/accounting/configuration/*"
+    - "**/net/punter/accounting/Application.java"
+    - "**/net/punter/accounting/RootController.java"
