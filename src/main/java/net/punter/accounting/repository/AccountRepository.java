@@ -1,7 +1,7 @@
-package net.punter.accounting.repositories;
+package net.punter.accounting.repository;
 
-import net.punter.accounting.domains.Account;
+import net.punter.accounting.domain.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface AccountRepository extends JpaRepository<Account, Long>{
+public interface AccountRepository extends JpaRepository<Account, Long> {
 }

@@ -1,14 +1,12 @@
-package net.punter.accountapp.integration.test;
+package net.punter.accounting.integration.test;
 
 
 import io.restassured.RestAssured;
-import net.punter.accountapp.controllers.AccountsApiController;
-import net.punter.accountapp.domains.Account;
-import net.punter.accountapp.domains.Balance;
+import net.punter.accounting.domain.Account;
+import net.punter.accounting.domain.Balance;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -26,9 +24,6 @@ import static io.restassured.RestAssured.given;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("embedded")
 public class RestIntegrationTest {
-
-    @Autowired
-    AccountsApiController controller;
 
     @LocalServerPort
     int randomServerPort;
@@ -59,7 +54,7 @@ public class RestIntegrationTest {
     public void createNewAccount() {
         Account account = new Account(Account.ACCOUNT_TYPE.SAVINGS);
         account.setName("integration-test");
-        account.addBalance(new Balance(BigDecimal.valueOf(1000L), Currency.getInstance("AUD")));
+        account.credit(new Balance(BigDecimal.valueOf(1000L), Currency.getInstance("AUD")));
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -84,7 +79,7 @@ public class RestIntegrationTest {
     public void getAccount_IfPresent() {
         Account first = new Account(Account.ACCOUNT_TYPE.SAVINGS);
         first.setName("first");
-        first.addBalance(new Balance(BigDecimal.valueOf(1000L), Currency.getInstance("AUD")));
+        first.credit(new Balance(BigDecimal.valueOf(1000L), Currency.getInstance("AUD")));
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -105,7 +100,7 @@ public class RestIntegrationTest {
     public void performTransaction_OnAccount() {
         Account first = new Account(Account.ACCOUNT_TYPE.SAVINGS);
         first.setName("first");
-        first.addBalance(new Balance(BigDecimal.valueOf(1000L), Currency.getInstance("AUD")));
+        first.credit(new Balance(BigDecimal.valueOf(1000L), Currency.getInstance("AUD")));
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -126,7 +121,7 @@ public class RestIntegrationTest {
     public void getAllTransactionForAccountId() {
         Account first = new Account(Account.ACCOUNT_TYPE.SAVINGS);
         first.setName("first");
-        first.addBalance(new Balance(BigDecimal.valueOf(1000L), Currency.getInstance("AUD")));
+        first.credit(new Balance(BigDecimal.valueOf(1000L), Currency.getInstance("AUD")));
         given()
                 .when()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

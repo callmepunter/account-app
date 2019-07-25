@@ -3,4 +3,4 @@ coverage:
   round: nearest
   range: "40...70"
   ignore:
-    - "**/SwaggerConfig.java"
+    - "**/net/punter/accounting/configuration/*"

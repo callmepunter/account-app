@@ -1,11 +1,13 @@
-package net.punter.accounting.controllers.test;
+package net.punter.accounting.controller.test;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.punter.accounting.controllers.AccountsApiController;
-import net.punter.accounting.domains.Account;
-import net.punter.accounting.domains.AccountTransaction;
-import net.punter.accounting.services.AccountService;
+import net.punter.accounting.controller.AccountCommandController;
+import net.punter.accounting.controller.AccountQueryController;
+import net.punter.accounting.domain.Account;
+import net.punter.accounting.domain.AccountTransaction;
+import net.punter.accounting.repository.AccountRepository;
+import net.punter.accounting.service.AccountService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,10 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Currency;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,7 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = AccountsApiController.class)
+@WebMvcTest(controllers = {AccountQueryController.class, AccountCommandController.class})
 public class AccountsApiControllerTest {
 
     @Autowired
@@ -40,6 +39,8 @@ public class AccountsApiControllerTest {
     @MockBean
     private AccountService accountService;
 
+    @MockBean
+    private AccountRepository accountRepository;
 
     @Before
     public void beforeSetup() {
@@ -55,8 +56,8 @@ public class AccountsApiControllerTest {
     public void testGetAllAccounts() throws Exception {
         Account account = new Account(Account.ACCOUNT_TYPE.SAVINGS);
         List<Account> accountList = Arrays.asList(account);
-        when(accountService.getAllAccounts()).thenReturn(Arrays.asList(account));
-        MvcResult mvcResult = mockMvc.perform(get(AccountsApiController.PATH)
+        when(accountRepository.findAll()).thenReturn(Arrays.asList(account));
+        MvcResult mvcResult = mockMvc.perform(get(AccountQueryController.PATH)
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(status().isOk()).andReturn();
 
@@ -74,9 +75,9 @@ public class AccountsApiControllerTest {
     public void testGetAccount() throws Exception {
         Account account = new Account(Account.ACCOUNT_TYPE.SAVINGS);
         account.setName("max-steel");
-        when(accountService.getAccount(Long.valueOf(787L))).thenReturn(account);
+        when(accountRepository.findById(Long.valueOf(787L))).thenReturn(Optional.of(account));
 
-        MvcResult mvcResult = mockMvc.perform(get(AccountsApiController.PATH + "/787")
+        MvcResult mvcResult = mockMvc.perform(get(AccountQueryController.PATH + "/787")
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(status().
                         isOk()).
@@ -98,7 +99,7 @@ public class AccountsApiControllerTest {
         final String accountString = mapper.writeValueAsString(account);
 
         MvcResult mvcResult = mockMvc.
-                perform(post(AccountsApiController.PATH).content(accountString)
+                perform(post(AccountCommandController.PATH).content(accountString)
                         .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(status().
                         isCreated()).
@@ -120,7 +121,7 @@ public class AccountsApiControllerTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         String body = objectMapper.writeValueAsString(accountTransaction);
-        String transactionReference = mockMvc.perform(post(AccountsApiController.PATH + "/1/transactions").content(body).contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+        String transactionReference = mockMvc.perform(post(AccountCommandController.PATH + "/1/transactions").content(body).contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
 
         assertThat(transactionReference).isEqualTo(uuid);
@@ -129,19 +130,20 @@ public class AccountsApiControllerTest {
     @Test
     public void testGetTransactionsForAccountId() throws Exception {
         String uuid = UUID.randomUUID().toString();
+        Account account = new Account(Account.ACCOUNT_TYPE.SAVINGS);
         AccountTransaction accountTransaction = new AccountTransaction();
         accountTransaction.setId(uuid);
         accountTransaction.setAmount(BigDecimal.TEN);
         accountTransaction.setCurrency(Currency.getInstance("EUR"));
         accountTransaction.setType(AccountTransaction.TYPE.CREDIT);
+        account.getAccountTransactions().add(accountTransaction);
 
-        when(accountService.getAllAccounTreansactions(any(Long.class))).thenReturn(Arrays.asList(accountTransaction));
+        when(accountRepository.findById(any(Long.class))).thenReturn(Optional.of(account));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String expected = objectMapper.writeValueAsString(Arrays.asList(accountTransaction));
-        MvcResult result = mockMvc.perform(get(AccountsApiController.PATH + "/1/transactions").contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).andReturn();
 
-        String responseBody = mockMvc.perform(get(AccountsApiController.PATH + "/1/transactions").contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+        String responseBody = mockMvc.perform(get(AccountQueryController.PATH + "/1/transactions").contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
         assertThat(responseBody).isEqualToIgnoringWhitespace(expected);

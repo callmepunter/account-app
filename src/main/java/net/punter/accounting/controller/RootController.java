@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.punter.accounting.controllers;
+package net.punter.accounting.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

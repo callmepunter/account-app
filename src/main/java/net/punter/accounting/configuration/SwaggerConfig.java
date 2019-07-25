@@ -1,4 +1,4 @@
-package net.punter.accounting;
+package net.punter.accounting.configuration;
 
 
 import org.springframework.context.annotation.Bean;

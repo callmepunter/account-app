@@ -1,4 +1,4 @@
-package net.punter.accounting.domains;
+package net.punter.accounting.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -27,47 +27,31 @@ public class AccountTransaction {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     String id;
-
+    @Column
+    String remarks;
     @ManyToOne
     @JoinColumn(name = "tb_account_id")
     @JsonIgnore
     private Account account;
-
     @Column
     private BigDecimal amount;
-
     @Column
     private Currency currency;
-
     @Column
     private TYPE type = TYPE.INVALID;
-
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     @DateTimeFormat(pattern = "yyyy/MM/dd")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy/MM/dd")
     private Date requestedOn;
 
-    public enum TYPE {
-        DEBIT, CREDIT, INVALID
-    }
-
-    @Column
-    String remarks;
-
     @PrePersist
     private void createdOn() {
         this.requestedOn = new Date();
     }
 
-    @Override
-    public String toString() {
-        return "AccountTransaction{" +
-                "id='" + id + '\'' +
-                ", amount=" + amount +
-                ", currency=" + currency +
-                ", type=" + type +
-                ", requestedOn=" + requestedOn +
-                '}';
+    public enum TYPE {
+        DEBIT, CREDIT, INVALID
     }
+
 }

@@ -1,10 +1,11 @@
-package net.punter.accounting.controllers;
+package net.punter.accounting.controller;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.punter.accounting.domains.Account;
-import net.punter.accounting.domains.AccountTransaction;
-import net.punter.accounting.services.AccountService;
+import net.punter.accounting.domain.Account;
+import net.punter.accounting.domain.AccountTransaction;
+import net.punter.accounting.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,43 +14,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 @RestController
-@RequestMapping(value = AccountsApiController.PATH)
+@RequestMapping(value = AccountCommandController.PATH)
 @Slf4j
-public class AccountsApiController {
+@RequiredArgsConstructor
+public class AccountCommandController {
 
-    public static final String PATH = "/api/v2/accounts";
+    public static final String PATH = "/api/v1/accounts";
 
     @Autowired
-    private AccountService accountService;
+    private final AccountService accountService;
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<Collection<Account>> getAllAccounts() {
-        Collection<Account> accounts = new ArrayList<Account>();
-        accounts.addAll(accountService.getAllAccounts());
-        if (accounts.isEmpty()) {
-            return new ResponseEntity<Collection<Account>>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<Collection<Account>>(accounts, HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/{id}",
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<Account> getAccount(@PathVariable("id") long accountId) {
-        Account account = null;
-        try {
-            account = accountService.getAccount(Long.valueOf(accountId));
-            return new ResponseEntity<Account>(account, HttpStatus.OK);
-        } catch (Exception exception) {
-            log.warn("Requested resource does not exist", exception);
-        }
-        return new ResponseEntity<Account>(HttpStatus.NOT_FOUND);
-    }
 
     @PostMapping(value = "", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Account> createNew(@RequestBody @Valid Account account) {
@@ -87,17 +63,5 @@ public class AccountsApiController {
             return new ResponseEntity<String>(headers, HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<String>(transactionId, HttpStatus.CREATED);
-    }
-
-    @GetMapping(value = "/{id}/transactions", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<AccountTransaction>> getTransactions(@PathVariable("id") long accountId) {
-        try {
-            List<AccountTransaction> allTransactions = accountService.getAllAccounTreansactions(accountId);
-            return new ResponseEntity<List<AccountTransaction>>(allTransactions, HttpStatus.OK);
-
-        } catch (Exception exception) {
-            log.warn("Requested resource does not exist", exception);
-        }
-        return new ResponseEntity<List<AccountTransaction>>(Collections.EMPTY_LIST, HttpStatus.NOT_FOUND);
     }
 }

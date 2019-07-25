@@ -5,9 +5,7 @@ import net.punter.accounting.domain.Account;
 import net.punter.accounting.domain.AccountTransaction;
 import net.punter.accounting.domain.Balance;
 import net.punter.accounting.repository.AccountRepository;
-import net.punter.accounting.repository.AccountTransactionRepository;
 import net.punter.accounting.service.AccountService;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -16,20 +14,23 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Currency;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
 /**
  * Went for mockito because I am bit by dependency-woodoo or spring boot
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AccountServicesTest {
+public class AccountServiceTest {
 
 
     @InjectMocks
@@ -37,9 +38,6 @@ public class AccountServicesTest {
 
     @Mock
     AccountRepository accountRepository;
-
-    @Mock
-    AccountTransactionRepository accountTransactionRepository;
 
 
     Supplier<String> uuidSupplier = () ->
@@ -56,24 +54,6 @@ public class AccountServicesTest {
         accountService.deleteAccount(1L);
     }
 
-    @Test
-    public void testGetAllAccounts() {
-        Account account = new Account(Account.ACCOUNT_TYPE.SAVINGS);
-        account.setName("test-case");
-        when(accountRepository.findAll()).thenReturn(Arrays.asList(account));
-        Collection<Account> allAccounts = accountService.getAllAccounts();
-        assertTrue(allAccounts.size() == 1);
-    }
-
-    @Test
-    public void testGetAllAccountTransactions_whenNoneExist() {
-        when(accountRepository.findById(any(Long.class))).thenReturn(Optional.empty());
-        List<AccountTransaction> transactions = accountService.getAllAccountTreansactions(999L);
-        assertNotNull(transactions);
-        assertTrue(transactions.size() == 0);
-    }
-
-
     /**
      * Saving account has 0 balance
      * Initiate a transaction of 10 EURO
@@ -83,51 +63,36 @@ public class AccountServicesTest {
      * @throws Exception
      */
     @Test
-    public void deposit() throws Exception {
+    public void testCredit() throws Exception {
         long accountNumber = 787L;
         String transactionReference = uuidSupplier.get();
 
-        Account requested = new Account(Account.ACCOUNT_TYPE.SAVINGS);
-        requested.setName("test-case");
-        requested.setId(accountNumber);
+        Account spyOfRequestedAccount = Mockito.spy(new Account());
+        spyOfRequestedAccount.setType(Account.ACCOUNT_TYPE.SAVINGS);
+        spyOfRequestedAccount.setName("test-case");
+        spyOfRequestedAccount.setId(accountNumber);
 
-        Balance euroZero = new Balance(Currency.getInstance("EUR"));
-        euroZero.setAmount(BigDecimal.ZERO);
-        euroZero.setAccount(requested);
-        requested.addBalance(euroZero);
+        Balance spyOfRequestedAccountBalance = Mockito.spy(new Balance(Currency.getInstance("EUR")));
+        spyOfRequestedAccountBalance.setAmount(BigDecimal.ZERO);
+        spyOfRequestedAccount.credit(spyOfRequestedAccountBalance);
+
+        AccountTransaction spyOfInputTransaction = Mockito.spy(new AccountTransaction());
+        spyOfInputTransaction.setType(AccountTransaction.TYPE.CREDIT);
+        spyOfInputTransaction.setCurrency(Currency.getInstance("EUR"));
+        spyOfInputTransaction.setAmount(BigDecimal.TEN);
 
 
-        AccountTransaction accountTransaction = new AccountTransaction();
-        accountTransaction.setType(AccountTransaction.TYPE.CREDIT);
-        accountTransaction.setCurrency(Currency.getInstance("EUR"));
-        accountTransaction.setAmount(BigDecimal.TEN);
+        when(accountRepository.findById(accountNumber)).thenReturn(Optional.of(spyOfRequestedAccount));
 
-        //after service layer logic runs, following objects should be the result
-        Account toBeSaved = new Account(Account.ACCOUNT_TYPE.SAVINGS);
-        toBeSaved.setName("test-case");
-        toBeSaved.setId(accountNumber);
-
-        AccountTransaction savedTransaction = new AccountTransaction();
-        savedTransaction.setId(transactionReference);
-        savedTransaction.setType(AccountTransaction.TYPE.CREDIT);
-        savedTransaction.setCurrency(Currency.getInstance("EUR"));
-        savedTransaction.setAmount(BigDecimal.TEN);
-
-        Balance euroTen = new Balance(Currency.getInstance("EUR"));
-        euroTen.setAmount(BigDecimal.TEN);
-        euroTen.setAccount(requested);
-
-        toBeSaved.addBalance(euroTen);
-
-        when(accountRepository.findById(accountNumber)).thenReturn(Optional.of(requested));
-        when(accountTransactionRepository.saveAndFlush(accountTransaction)).thenReturn(savedTransaction);
-
-        String resultReference = accountService.deposit(accountNumber, accountTransaction);
-
-        Mockito.verify(accountRepository).saveAndFlush(toBeSaved);
-        Mockito.verify(accountTransactionRepository).saveAndFlush(accountTransaction);
-        Assert.assertEquals(transactionReference, resultReference);
-
+        String resultReference = accountService.deposit(accountNumber, spyOfInputTransaction);
+        //make sure amount and currency were read.
+        Mockito.verify(spyOfInputTransaction).getAmount();
+        Mockito.verify(spyOfInputTransaction).getCurrency();
+        Mockito.verify(spyOfRequestedAccount).credit(any(Balance.class));
+        Mockito.verify(accountRepository).saveAndFlush(any(Account.class));
+        //started with 0 balance should be 10 EURO now.
+        assertThat(spyOfRequestedAccount.findBalance(Currency.getInstance("EUR")).getAmount(), equalTo(BigDecimal.TEN));
+        System.out.println(resultReference);
     }
 
     /**
@@ -137,49 +102,36 @@ public class AccountServicesTest {
      * Transaction logged should be of 10 EURO, as it was a debit
      */
     @Test
-    public void withdraw() throws Exception {
+    public void testDebit() throws Exception {
         long accountNumber = 787L;
         String transactionReference = uuidSupplier.get();
 
-        Account requested = new Account(Account.ACCOUNT_TYPE.SAVINGS);
-        requested.setName("test-case");
-        requested.setId(accountNumber);
+        Account spyOfRequestedAccount = Mockito.spy(new Account());
+        spyOfRequestedAccount.setType(Account.ACCOUNT_TYPE.SAVINGS);
+        spyOfRequestedAccount.setName("test-case");
+        spyOfRequestedAccount.setId(accountNumber);
 
-        Balance tenEuro = new Balance(Currency.getInstance("EUR"));
-        tenEuro.setAmount(BigDecimal.TEN);
-        tenEuro.setAccount(requested);
-        requested.addBalance(tenEuro);
+        Balance spyOfRequestedAccountBalance = Mockito.spy(new Balance(Currency.getInstance("EUR")));
+        spyOfRequestedAccountBalance.setAmount(BigDecimal.TEN);
+        spyOfRequestedAccount.credit(spyOfRequestedAccountBalance);
+
+        AccountTransaction spyOfInputTransaction = Mockito.spy(new AccountTransaction());
+        spyOfInputTransaction.setType(AccountTransaction.TYPE.DEBIT);
+        spyOfInputTransaction.setCurrency(Currency.getInstance("EUR"));
+        spyOfInputTransaction.setAmount(BigDecimal.TEN);
 
 
-        AccountTransaction accountTransaction = new AccountTransaction();
-        accountTransaction.setType(AccountTransaction.TYPE.DEBIT);// it is debit
-        accountTransaction.setCurrency(Currency.getInstance("EUR"));
-        accountTransaction.setAmount(BigDecimal.TEN);
+        when(accountRepository.findById(accountNumber)).thenReturn(Optional.of(spyOfRequestedAccount));
 
-        Account toBeSaved = new Account(Account.ACCOUNT_TYPE.SAVINGS);
-        toBeSaved.setName("test-case");
-        toBeSaved.setId(accountNumber);
-
-        Balance zeroEuro = new Balance(Currency.getInstance("EUR"));
-        zeroEuro.setAmount(BigDecimal.ZERO);
-        zeroEuro.setAccount(requested);
-        toBeSaved.addBalance(zeroEuro);// balance should become zero
-
-        AccountTransaction savedTransaction = new AccountTransaction();
-        savedTransaction.setId(transactionReference);
-        savedTransaction.setType(AccountTransaction.TYPE.CREDIT);
-        savedTransaction.setCurrency(Currency.getInstance("EUR"));
-        savedTransaction.setAmount(BigDecimal.TEN);
-
-        when(accountRepository.findById(accountNumber)).thenReturn(Optional.of(requested));
-        when(accountTransactionRepository.saveAndFlush(accountTransaction)).thenReturn(savedTransaction);
-
-        String reference = accountService.withdraw(accountNumber, accountTransaction);
-
-        Mockito.verify(accountRepository).saveAndFlush(toBeSaved);
-        Mockito.verify(accountTransactionRepository).saveAndFlush(accountTransaction);
-        Assert.assertEquals(reference, transactionReference);
-
+        String resultReference = accountService.withdraw(accountNumber, spyOfInputTransaction);
+        //make sure amount and currency were read.
+        Mockito.verify(spyOfInputTransaction).getAmount();
+        Mockito.verify(spyOfInputTransaction).getCurrency();
+        Mockito.verify(spyOfRequestedAccount).debit(any(Balance.class));
+        Mockito.verify(accountRepository).saveAndFlush(any(Account.class));
+        //started with 10 EURO should be 0 now
+        assertThat(spyOfRequestedAccount.findBalance(Currency.getInstance("EUR")).getAmount(), equalTo(BigDecimal.ZERO));
+        System.out.println(resultReference);
     }
 
     @Test
@@ -190,5 +142,4 @@ public class AccountServicesTest {
         Account saved = accountService.createAccount(toBeSaved);
         assertThat(saved.getName(), equalTo(toBeSaved.getName()));
     }
-
 }

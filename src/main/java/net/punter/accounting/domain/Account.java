@@ -1,12 +1,14 @@
-package net.punter.accounting.domains;
+package net.punter.accounting.domain;
 
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.punter.accounting.InsufficientBalanceException;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 
 
@@ -15,6 +17,7 @@ import java.util.*;
 @Getter
 @Setter
 @NoArgsConstructor
+
 public class Account {
 
     @Id
@@ -28,7 +31,7 @@ public class Account {
     @Setter(AccessLevel.NONE)
     private Set<Balance> balances;
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "account", fetch = FetchType.LAZY)
     @Setter(AccessLevel.NONE)
     private Collection<AccountTransaction> accountTransactions;
 
@@ -43,34 +46,40 @@ public class Account {
         this.type = type;
     }
 
-    public enum ACCOUNT_TYPE {
-        SAVINGS, CURRENT;
-    }
-
-    public Balance findBalance(Currency currency) {
-        Balance holder = null;
+    public Balance findBalance(@NotNull Currency currency) {
         for (Balance balance : getBalances()) {
             if (balance.getCurrency().equals(currency)) {
                 return balance;
             }
         }
-        /*if holder is till null it is a new balance add and then return*/
-        if (holder == null) {
-            holder = new Balance(currency);
-            holder.setAccount(this);
-            balances.add(holder);
+        return this.createNewBalance(currency);
+    }
+
+    protected Balance createNewBalance(@NotNull Currency currency) {
+        Balance newBalance = new Balance(currency);
+        newBalance.setAccount(this);
+        this.balances.add(newBalance);
+        return newBalance;
+    }
+
+    /***
+     * If type of balance exists then add to it.
+     * Other wise link the new balance to account.
+     * @param balance
+     */
+    public Balance credit(@NotNull Balance balance) {
+        Balance existing = findBalance(balance.getCurrency());
+        existing.setAmount(existing.getAmount().add(balance.getAmount()));
+        return existing;
+    }
+
+    public Balance debit(@NotNull Balance balance) {
+        Balance existing = findBalance(balance.getCurrency());
+        if (existing.isGreaterThanOrEquals(balance.getAmount())) {
+            existing.setAmount(existing.getAmount().subtract(balance.getAmount()));
+            return existing;
         }
-        return holder;
-    }
-
-    public void addBalance(Balance balance) {
-        balance.setAccount(this);
-        getBalances().add(balance);
-    }
-
-    public void addAccountTransaction(AccountTransaction accountTransaction) {
-        accountTransaction.setAccount(this);
-        getAccountTransactions().add(accountTransaction);
+        throw new InsufficientBalanceException();
     }
 
     public Set<Balance> getBalances() {
@@ -87,27 +96,7 @@ public class Account {
         return accountTransactions;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Account)) return false;
-        Account account = (Account) o;
-        return Objects.equals(getId(), account.getId()) &&
-                Objects.equals(getName(), account.getName()) &&
-                getType() == account.getType();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getName(), getType());
-    }
-
-    @Override
-    public String toString() {
-        return "Account{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", type=" + type +
-                '}';
+    public enum ACCOUNT_TYPE {
+        SAVINGS, CURRENT;
     }
 }
