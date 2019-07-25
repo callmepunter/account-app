@@ -1,11 +1,10 @@
-package net.punter.accountapp.controllers;
+package net.punter.accounting.controllers;
 
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.punter.accountapp.domains.Account;
-import net.punter.accountapp.domains.AccountTransaction;
-import net.punter.accountapp.services.AccountService;
+import net.punter.accounting.domains.Account;
+import net.punter.accounting.domains.AccountTransaction;
+import net.punter.accounting.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,10 +21,9 @@ import java.util.List;
 @RestController
 @RequestMapping(value = AccountsApiController.PATH)
 @Slf4j
-@AllArgsConstructor
 public class AccountsApiController {
 
-    public static final String PATH = "/api/v1/accounts";
+    public static final String PATH = "/api/v2/accounts";
 
     @Autowired
     private AccountService accountService;
@@ -82,7 +80,7 @@ public class AccountsApiController {
         }
 
         if (AccountTransaction.TYPE.DEBIT == accountTransaction.getType()) {
-            transactionId = accountService.withDraw(accountNumber, accountTransaction);
+            transactionId = accountService.withdraw(accountNumber, accountTransaction);
 
         }
         if ("INVALID".equals(transactionId)) {
@@ -94,7 +92,7 @@ public class AccountsApiController {
     @GetMapping(value = "/{id}/transactions", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<AccountTransaction>> getTransactions(@PathVariable("id") long accountId) {
         try {
-            List<AccountTransaction> allTransactions = accountService.getAllTransactions(accountId);
+            List<AccountTransaction> allTransactions = accountService.getAllAccounTreansactions(accountId);
             return new ResponseEntity<List<AccountTransaction>>(allTransactions, HttpStatus.OK);
 
         } catch (Exception exception) {

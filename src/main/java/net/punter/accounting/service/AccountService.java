@@ -1,14 +1,14 @@
-package net.punter.accountapp.services.impl;
+package net.punter.accounting.service;
 
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.punter.accountapp.domains.Account;
-import net.punter.accountapp.domains.AccountTransaction;
-import net.punter.accountapp.domains.Balance;
-import net.punter.accountapp.repositories.AccountRepository;
-import net.punter.accountapp.repositories.AccountTransactionRepository;
-import net.punter.accountapp.services.AccountService;
+import net.punter.accounting.domain.Account;
+import net.punter.accounting.domain.AccountTransaction;
+import net.punter.accounting.domain.Balance;
+import net.punter.accounting.repository.AccountRepository;
+import net.punter.accounting.repository.AccountTransactionRepository;
+import net.punter.accounting.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -39,7 +39,6 @@ public class AccountServiceImpl implements AccountService {
     public Collection<Account> getAllAccounts() throws DataAccessException {
         List<Account> accountList = accountRepository.findAll();
         return Collections.unmodifiableList(accountList);
-
     }
 
 
@@ -81,7 +80,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public String withDraw(Long accountNumber, AccountTransaction accountTransaction) {
+    public String withdraw(Long accountNumber, AccountTransaction accountTransaction) {
         Optional<Account> accountHolder = accountRepository.findById(accountNumber);
         if (accountHolder.isPresent()) {
             Account account = accountHolder.get();
@@ -100,11 +99,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<AccountTransaction> getAllTransactions(Long accountId) {
+    public List<AccountTransaction> getAllAccounTreansactions(Long accountId) {
         Optional<Account> accountHolder = accountRepository.findById(accountId);
         if (accountHolder.isPresent()) {
             Account account = accountHolder.get();
-            return new ArrayList<>(account.getTransactions());
+            return new ArrayList<>(account.getAccountTransactions());
         }
         return Collections.EMPTY_LIST;
     }

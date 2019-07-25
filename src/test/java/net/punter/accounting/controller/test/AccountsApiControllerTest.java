@@ -1,18 +1,16 @@
-package net.punter.accountapp.controllers.test;
+package net.punter.accounting.controllers.test;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.punter.accountapp.controllers.AccountsApiController;
-import net.punter.accountapp.domains.Account;
-import net.punter.accountapp.domains.AccountTransaction;
-import net.punter.accountapp.services.AccountService;
+import net.punter.accounting.controllers.AccountsApiController;
+import net.punter.accounting.domains.Account;
+import net.punter.accounting.domains.AccountTransaction;
+import net.punter.accounting.services.AccountService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.omg.CORBA.Any;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -24,11 +22,9 @@ import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -139,7 +135,7 @@ public class AccountsApiControllerTest {
         accountTransaction.setCurrency(Currency.getInstance("EUR"));
         accountTransaction.setType(AccountTransaction.TYPE.CREDIT);
 
-        when(accountService.getAllTransactions(any(Long.class))).thenReturn(Arrays.asList(accountTransaction));
+        when(accountService.getAllAccounTreansactions(any(Long.class))).thenReturn(Arrays.asList(accountTransaction));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String expected = objectMapper.writeValueAsString(Arrays.asList(accountTransaction));

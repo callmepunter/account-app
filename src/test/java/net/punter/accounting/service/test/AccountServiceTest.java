@@ -1,12 +1,12 @@
-package net.punter.accountapp.services.test;
+package net.punter.accounting.service.test;
 
 
-import net.punter.accountapp.domains.Account;
-import net.punter.accountapp.domains.AccountTransaction;
-import net.punter.accountapp.domains.Balance;
-import net.punter.accountapp.repositories.AccountRepository;
-import net.punter.accountapp.repositories.AccountTransactionRepository;
-import net.punter.accountapp.services.impl.AccountServiceImpl;
+import net.punter.accounting.domain.Account;
+import net.punter.accounting.domain.AccountTransaction;
+import net.punter.accounting.domain.Balance;
+import net.punter.accounting.repository.AccountRepository;
+import net.punter.accounting.repository.AccountTransactionRepository;
+import net.punter.accounting.service.AccountService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,8 +20,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -34,7 +33,7 @@ public class AccountServicesTest {
 
 
     @InjectMocks
-    AccountServiceImpl accountService;
+    AccountService accountService;
 
     @Mock
     AccountRepository accountRepository;
@@ -58,19 +57,20 @@ public class AccountServicesTest {
     }
 
     @Test
-    public void testGetAll() {
+    public void testGetAllAccounts() {
         Account account = new Account(Account.ACCOUNT_TYPE.SAVINGS);
         account.setName("test-case");
         when(accountRepository.findAll()).thenReturn(Arrays.asList(account));
         Collection<Account> allAccounts = accountService.getAllAccounts();
-        assertThat(allAccounts.size(), is(eq(1)));
+        assertTrue(allAccounts.size() == 1);
     }
 
     @Test
-    public void getAllTransactions(){
+    public void testGetAllAccountTransactions_whenNoneExist() {
         when(accountRepository.findById(any(Long.class))).thenReturn(Optional.empty());
-        List<AccountTransaction> transactions = accountService.getAllTransactions(999L);
-        assertThat(transactions.size(), is(0));
+        List<AccountTransaction> transactions = accountService.getAllAccountTreansactions(999L);
+        assertNotNull(transactions);
+        assertTrue(transactions.size() == 0);
     }
 
 
@@ -174,7 +174,7 @@ public class AccountServicesTest {
         when(accountRepository.findById(accountNumber)).thenReturn(Optional.of(requested));
         when(accountTransactionRepository.saveAndFlush(accountTransaction)).thenReturn(savedTransaction);
 
-        String reference = accountService.withDraw(accountNumber, accountTransaction);
+        String reference = accountService.withdraw(accountNumber, accountTransaction);
 
         Mockito.verify(accountRepository).saveAndFlush(toBeSaved);
         Mockito.verify(accountTransactionRepository).saveAndFlush(accountTransaction);

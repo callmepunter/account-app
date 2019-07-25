@@ -1,4 +1,4 @@
-package net.punter.accountapp.domains;
+package net.punter.accounting.domains;
 
 
 import lombok.AccessLevel;
@@ -29,7 +29,8 @@ public class Account {
     private Set<Balance> balances;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
-    private Collection<AccountTransaction> transactions;
+    @Setter(AccessLevel.NONE)
+    private Collection<AccountTransaction> accountTransactions;
 
     @Column(updatable = false)
     private ACCOUNT_TYPE type = ACCOUNT_TYPE.SAVINGS;
@@ -67,11 +68,23 @@ public class Account {
         getBalances().add(balance);
     }
 
+    public void addAccountTransaction(AccountTransaction accountTransaction) {
+        accountTransaction.setAccount(this);
+        getAccountTransactions().add(accountTransaction);
+    }
+
     public Set<Balance> getBalances() {
         if (balances == null) {
             balances = new HashSet<>();
         }
         return balances;
+    }
+
+    public Collection<AccountTransaction> getAccountTransactions() {
+        if (this.accountTransactions == null) {
+            this.accountTransactions = new ArrayList<>();
+        }
+        return accountTransactions;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package net.punter.accountapp.domains;
+package net.punter.accounting.domains;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
