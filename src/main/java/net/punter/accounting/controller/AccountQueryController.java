@@ -37,6 +37,7 @@ public class AccountQueryController {
         if (accounts == null || accounts.isEmpty()) {
             return new ResponseEntity<Collection<Account>>(HttpStatus.NOT_FOUND);
         }
+        accounts.stream().forEach(account -> account.trimTransactions());
         return new ResponseEntity<Collection<Account>>(accounts, HttpStatus.OK);
     }
 
@@ -45,7 +46,9 @@ public class AccountQueryController {
     public ResponseEntity<Account> getAccount(@PathVariable("id") @Valid Long accountId) {
         Optional<Account> holder = accountRepository.findById(accountId);
         if (holder.isPresent()) {
-            return new ResponseEntity<Account>(holder.get(), HttpStatus.OK);
+            Account responsePayload = holder.get();
+            responsePayload.trimTransactions();
+            return new ResponseEntity<Account>(responsePayload, HttpStatus.OK);
         }
         return new ResponseEntity<Account>(HttpStatus.NOT_FOUND);
     }

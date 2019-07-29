@@ -3,8 +3,8 @@
 
 [![codecov](https://codecov.io/gh/callmepunter/account-app/branch/master/graph/badge.svg)](https://codecov.io/gh/callmepunter/account-app)
 
-A simple spring boot demonstrator for a multi currency account. Basic transaction of credit/debit is 
-supported. 
+A simple spring boot demonstrator for a multi currency account. Although, REST Api is not exposed, at service layer
+for debit/credit transaction has been implemented.
  
 
 

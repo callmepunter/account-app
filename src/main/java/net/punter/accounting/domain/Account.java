@@ -36,6 +36,7 @@ public class Account {
     private Collection<AccountTransaction> accountTransactions;
 
     @Column(updatable = false)
+    @Enumerated(EnumType.STRING)
     private ACCOUNT_TYPE type = ACCOUNT_TYPE.SAVINGS;
 
     /**
@@ -98,5 +99,12 @@ public class Account {
 
     public enum ACCOUNT_TYPE {
         SAVINGS, CURRENT;
+    }
+
+    /**
+     * This is for the account query interface. Return the lightweight payload first.
+     */
+    public void trimTransactions(){
+        getAccountTransactions().clear();
     }
 }

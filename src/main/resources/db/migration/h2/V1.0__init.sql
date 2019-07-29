@@ -12,7 +12,7 @@
     create table tb_account (
        id bigint not null,
         name varchar(255),
-        type integer,
+        type varchar(255),
         primary key (id)
     );
 
@@ -30,7 +30,7 @@
         currency varchar(255),
         remarks varchar(255),
         requested_on timestamp,
-        type integer,
+         type varchar(255),
         tb_account_id bigint,
         primary key (id)
     );

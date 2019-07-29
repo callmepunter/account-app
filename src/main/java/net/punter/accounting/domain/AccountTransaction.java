@@ -38,6 +38,7 @@ public class AccountTransaction {
     @Column
     private Currency currency;
     @Column
+    @Enumerated(EnumType.STRING)
     private TYPE type = TYPE.INVALID;
     @Column
     @Temporal(TemporalType.TIMESTAMP)
