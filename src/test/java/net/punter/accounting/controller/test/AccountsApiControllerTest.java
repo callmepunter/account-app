@@ -2,7 +2,6 @@ package net.punter.accounting.controller.test;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.punter.accounting.controller.AccountCommandController;
 import net.punter.accounting.controller.AccountQueryController;
 import net.punter.accounting.domain.Account;
 import net.punter.accounting.domain.AccountTransaction;
@@ -26,11 +25,10 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = {AccountQueryController.class, AccountCommandController.class})
+@WebMvcTest(controllers = {AccountQueryController.class})
 public class AccountsApiControllerTest {
 
     @Autowired
@@ -86,46 +84,6 @@ public class AccountsApiControllerTest {
         assertThat(mvcResult.getResponse().getContentAsString().contains("max-steel")).isTrue();
     }
 
-
-    @Test
-    public void testCreateNew() throws Exception {
-        Account account = new Account(Account.ACCOUNT_TYPE.SAVINGS);
-        account.setName("max-steel");
-        account.setId(787L);
-
-        when(accountService.createAccount(any(Account.class))).thenReturn(account);
-
-        final ObjectMapper mapper = new ObjectMapper();
-        final String accountString = mapper.writeValueAsString(account);
-
-        MvcResult mvcResult = mockMvc.
-                perform(post(AccountCommandController.PATH).content(accountString)
-                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                .andExpect(status().
-                        isCreated()).
-                        andReturn();
-
-        assertThat(mvcResult.getResponse().getContentAsString().contains("787")).isTrue();
-        assertThat(mvcResult.getResponse().getContentAsString().contains("max-steel")).isTrue();
-    }
-
-    @Test
-    public void testTransact() throws Exception {
-        String uuid = UUID.randomUUID().toString();
-        AccountTransaction accountTransaction = new AccountTransaction();
-        accountTransaction.setAmount(BigDecimal.TEN);
-        accountTransaction.setCurrency(Currency.getInstance("EUR"));
-        accountTransaction.setType(AccountTransaction.TYPE.CREDIT);
-
-        when(accountService.deposit(any(Long.class), any(AccountTransaction.class))).thenReturn(uuid);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String body = objectMapper.writeValueAsString(accountTransaction);
-        String transactionReference = mockMvc.perform(post(AccountCommandController.PATH + "/1/transactions").content(body).contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
-
-        assertThat(transactionReference).isEqualTo(uuid);
-    }
 
     @Test
     public void testGetTransactionsForAccountId() throws Exception {

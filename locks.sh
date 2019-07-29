@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-ls ~/anz*
+ls ~/db/accounting*
 echo "H2 is locked , will attempt to remove it"
-ls ~/anzdb.lock.db
-sudo chmod 777 $(ls ~/anzacc.lock.db)
-sudo rm $(ls ~/~/anzacc.lock.db) --force
+ls ~/db/accounting.lock.db
+sudo chmod 777 $(ls ~/db/accounting.lock.db)
+sudo rm $(ls ~/db/accounting.lock.db) --force
